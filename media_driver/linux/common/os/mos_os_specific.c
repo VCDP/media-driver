@@ -2117,14 +2117,12 @@ void Mos_Specific_FreeResource(
         }
 #endif
         pOsResource->bo = nullptr;
-        if (pOsResource->pGmmResInfo != nullptr && 
-            pOsInterface->pOsContext != nullptr &&
-            pOsInterface->pOsContext->pGmmClientContext != nullptr)
+        if (pOsResource->pGmmResInfo != nullptr) 
         {
             MosMemAllocCounterGfx--;
             MOS_MEMNINJA_GFX_FREE_MESSAGE(pOsResource->pGmmResInfo, functionName, filename, line);
 
-            pOsInterface->pOsContext->pGmmClientContext->DestroyResInfoObject(pOsResource->pGmmResInfo);
+            GmmResFree(pOsResource->pGmmResInfo);
             pOsResource->pGmmResInfo = nullptr;
         }
     }
