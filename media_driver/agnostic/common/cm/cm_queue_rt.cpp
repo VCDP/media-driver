@@ -2209,7 +2209,12 @@ int32_t CmQueueRT::CleanQueue( )
             status = CM_EXCEED_MAX_TIMEOUT;
     }
 
-    return status;
+    while (!m_flushedTasks.IsEmpty() && (status == CM_EXCEED_MAX_TIMEOUT))
+    {
+        PopTaskFromFlushedQueue();
+    }
+
+    return CM_SUCCESS;
 }
 
 CM_QUEUE_CREATE_OPTION &CmQueueRT::GetQueueOption()
