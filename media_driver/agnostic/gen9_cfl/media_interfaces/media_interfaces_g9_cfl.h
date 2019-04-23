@@ -35,6 +35,10 @@
 
 #include "codechal_decode_histogram_vebox_g9.h"
 
+#ifdef _AVC_ENCODE_VME_SUPPORTED
+#include "codechal_encode_avc_g9_skl.h"
+#endif
+
 class CMHalInterfacesG9Cfl : public CMHalDevice
 {
 protected:
@@ -51,6 +55,47 @@ public:
     MOS_STATUS Initialize(
         CodechalHwInterface *hwInterface,
         PMOS_INTERFACE osInterface);
+};
+
+class CodechalEncodeInterfacesG9Cfl
+{
+public:
+#ifdef _JPEG_ENCODE_SUPPORTED
+    using Jpeg = CodechalEncodeJpegState;
+#endif
+#ifdef _MPEG2_ENCODE_VME_SUPPORTED
+    using Mpeg2 = CodechalEncodeMpeg2G9;
+#endif
+
+    using CscDs = CodechalEncodeCscDsG9;
+
+#ifdef _HEVC_ENCODE_VME_SUPPORTED
+    using HevcEnc = CodechalEncHevcStateG9Kbl;
+#endif
+
+#ifdef _AVC_ENCODE_VME_SUPPORTED
+    using AvcEnc   = CodechalEncodeAvcEncG9Skl;
+#endif
+#ifdef _AVC_ENCODE_VDENC_SUPPORTED
+    using AvcVdenc = CodechalVdencAvcStateG9Kbl;
+#endif
+#ifdef _VP8_ENCODE_SUPPORTED
+    using Vp8 = CodechalEncodeVp8G9;
+#endif
+};
+
+class CodechalInterfacesG9Cfl : public CodechalDevice
+{
+public:
+    using Decode = CodechalDecodeInterfacesG9Kbl;
+    using Encode = CodechalEncodeInterfacesG9Cfl;
+    using Hw = CodechalHwInterfaceG9Kbl;
+
+    MOS_STATUS Initialize(
+        void *standardInfo,
+        void *settings,
+        MhwInterfaces *mhwInterfaces,
+        PMOS_INTERFACE osInterface) override;
 };
 
 #endif // __MEDIA_INTERFACES_G9_CFL_H__

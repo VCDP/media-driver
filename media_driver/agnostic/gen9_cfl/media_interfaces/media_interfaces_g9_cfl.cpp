@@ -26,6 +26,9 @@
 
 #include "media_interfaces_g9_kbl.h"
 #include "media_interfaces_g9_cfl.h"
+#if defined(ENABLE_KERNELS) && !defined(_FULL_OPEN_SOURCE)
+#include "igcodeckrn_g9.h"
+#endif
 
 extern template class MediaInterfacesFactory<MhwInterfaces>;
 extern template class MediaInterfacesFactory<MmdDevice>;
@@ -57,7 +60,260 @@ static bool cflRegisteredNv12ToP010 =
 
 static bool cflRegisteredCodecHal =
     MediaInterfacesFactory<CodechalDevice>::
-    RegisterHal<CodechalInterfacesG9Kbl>((uint32_t)IGFX_COFFEELAKE);
+    RegisterHal<CodechalInterfacesG9Cfl>((uint32_t)IGFX_COFFEELAKE);
+
+MOS_STATUS CodechalInterfacesG9Cfl::Initialize(
+    void *standardInfo,
+    void *settings,
+    MhwInterfaces *mhwInterfaces,
+    PMOS_INTERFACE osInterface)
+{
+    if (standardInfo    == nullptr ||
+        mhwInterfaces   == nullptr ||
+        osInterface     == nullptr)
+    {
+        CODECHAL_PUBLIC_ASSERTMESSAGE("CodecHal device is not valid!");
+        return MOS_STATUS_INVALID_PARAMETER;
+    }
+    PCODECHAL_STANDARD_INFO info = ((PCODECHAL_STANDARD_INFO)standardInfo);
+    CODECHAL_FUNCTION CodecFunction = info->CodecFunction;
+
+    CodechalHwInterface *hwInterface = MOS_New(Hw, osInterface, CodecFunction, mhwInterfaces);
+
+    if (hwInterface == nullptr)
+    {
+        CODECHAL_PUBLIC_ASSERTMESSAGE("hwInterface is not valid!");
+        return MOS_STATUS_NO_SPACE;
+    }
+#if USE_CODECHAL_DEBUG_TOOL
+    CodechalDebugInterface *debugInterface = MOS_New(CodechalDebugInterface);
+    if (debugInterface == nullptr)
+    {
+        CODECHAL_PUBLIC_ASSERTMESSAGE("debugInterface is not valid!");
+        return MOS_STATUS_NO_SPACE;
+    }
+    if (debugInterface->Initialize(hwInterface, CodecFunction) != MOS_STATUS_SUCCESS)
+    {
+        CODECHAL_PUBLIC_ASSERTMESSAGE("Debug interface creation failed!");
+        return MOS_STATUS_INVALID_PARAMETER;
+    }
+#else
+    CodechalDebugInterface *debugInterface = nullptr;
+#endif // USE_CODECHAL_DEBUG_TOOL
+    if (CodecHalIsDecode(CodecFunction))
+    {
+    #ifdef _MPEG2_DECODE_SUPPORTED
+        if (info->Mode == CODECHAL_DECODE_MODE_MPEG2IDCT ||
+            info->Mode == CODECHAL_DECODE_MODE_MPEG2VLD)
+        {
+            m_codechalDevice = MOS_New(Decode::Mpeg2, hwInterface, debugInterface, info);
+        }
+        else
+    #endif
+    #ifdef _VC1_DECODE_SUPPORTED
+        if (info->Mode == CODECHAL_DECODE_MODE_VC1IT ||
+            info->Mode == CODECHAL_DECODE_MODE_VC1VLD)
+        {
+            m_codechalDevice = MOS_New(Decode::Vc1, hwInterface, debugInterface, info);
+        }
+        else
+    #endif
+    #ifdef _AVC_DECODE_SUPPORTED
+        if (info->Mode == CODECHAL_DECODE_MODE_AVCVLD)
+        {
+            m_codechalDevice = MOS_New(Decode::Avc, hwInterface, debugInterface, info);
+
+            if (m_codechalDevice == nullptr)
+            {
+                CODECHAL_PUBLIC_ASSERTMESSAGE("Failed to create decode device!");
+                return MOS_STATUS_NO_SPACE;
+            }
+#ifdef _DECODE_PROCESSING_SUPPORTED
+            if (settings != nullptr && ((CodechalSetting *)settings)->downsamplingHinted)
+            {
+                CodechalDecode *decoder = dynamic_cast<CodechalDecode *>(m_codechalDevice);
+                if (decoder == nullptr)
+                {
+                    CODECHAL_PUBLIC_ASSERTMESSAGE("Failed to create decode device!");
+                    return MOS_STATUS_NO_SPACE;
+                }
+                FieldScalingInterface *fieldScalingInterface =
+                    MOS_New(Decode::FieldScaling, hwInterface);
+                if (fieldScalingInterface == nullptr)
+                {
+                    CODECHAL_PUBLIC_ASSERTMESSAGE("Failed to create field scaling interface!");
+                    return MOS_STATUS_NO_SPACE;
+                }
+                decoder->m_fieldScalingInterface = fieldScalingInterface;
+            }
+#endif
+       }
+        else
+    #endif
+    #ifdef _JPEG_DECODE_SUPPORTED
+        if (info->Mode == CODECHAL_DECODE_MODE_JPEG)
+        {
+            m_codechalDevice = MOS_New(Decode::Jpeg, hwInterface, debugInterface, info);
+        }
+        else
+    #endif
+    #ifdef _VP8_DECODE_SUPPORTED
+        if (info->Mode == CODECHAL_DECODE_MODE_VP8VLD)
+        {
+            m_codechalDevice = MOS_New(Decode::Vp8, hwInterface, debugInterface, info);
+        }
+        else
+    #endif
+    #ifdef _HEVC_DECODE_SUPPORTED
+        if (info->Mode == CODECHAL_DECODE_MODE_HEVCVLD)
+        {
+            m_codechalDevice = MOS_New(Decode::Hevc, hwInterface, debugInterface, info);
+        }
+        else
+    #endif
+    #ifdef _VP9_DECODE_SUPPORTED
+        if (info->Mode == CODECHAL_DECODE_MODE_VP9VLD)
+        {
+            m_codechalDevice = MOS_New(Decode::Vp9, hwInterface, debugInterface, info);
+        }
+        else
+    #endif
+        {
+            CODECHAL_PUBLIC_ASSERTMESSAGE("Decode mode requested invalid!");
+            return MOS_STATUS_INVALID_PARAMETER;
+        }
+
+        CodechalDecode *decoder = dynamic_cast<CodechalDecode *>(m_codechalDevice);
+        if (decoder == nullptr)
+        {
+            CODECHAL_PUBLIC_ASSERTMESSAGE("Decoder device creation failed!");
+            return MOS_STATUS_NO_SPACE;
+        }
+        decoder->SetHuCProductFamily(HUC_KABYLAKE);
+    }
+    else if (CodecHalIsEncode(CodecFunction))
+    {
+        CodechalEncoderState* encoder = nullptr;
+#ifdef _MPEG2_ENCODE_VME_SUPPORTED
+        if (info->Mode == CODECHAL_ENCODE_MODE_MPEG2)
+        {
+            // Setup encode interface functions
+            encoder = MOS_New(Encode::Mpeg2, hwInterface, debugInterface, info);
+            if (encoder == nullptr)
+            {
+                CODECHAL_PUBLIC_ASSERTMESSAGE("Encode allocation failed!");
+                return MOS_STATUS_INVALID_PARAMETER;
+            }
+            else
+            {
+                m_codechalDevice = encoder;
+            }
+
+            encoder->m_kernelBase = (uint8_t*)IGCODECKRN_G9;
+        }
+        else
+#endif
+#ifdef _JPEG_ENCODE_SUPPORTED
+        if (info->Mode == CODECHAL_ENCODE_MODE_JPEG)
+        {
+            encoder = MOS_New(Encode::Jpeg, hwInterface, debugInterface, info);
+            if (encoder == nullptr)
+            {
+                CODECHAL_PUBLIC_ASSERTMESSAGE("Encode state creation failed!");
+                return MOS_STATUS_INVALID_PARAMETER;
+            }
+            else
+            {
+                m_codechalDevice = encoder;
+            }
+            encoder->m_needCheckCpEnabled = true;
+        }
+        else
+#endif
+#ifdef _HEVC_ENCODE_VME_SUPPORTED
+        if (info->Mode == CODECHAL_ENCODE_MODE_HEVC)
+        {
+            encoder = MOS_New(Encode::HevcEnc, hwInterface, debugInterface, info);
+            if (encoder == nullptr)
+            {
+                CODECHAL_PUBLIC_ASSERTMESSAGE("Encode state creation failed!");
+                return MOS_STATUS_INVALID_PARAMETER;
+            }
+            else
+            {
+                m_codechalDevice = encoder;
+            }
+
+            encoder->m_kernelBase = (uint8_t*)IGCODECKRN_G9;
+        }
+        else
+#endif
+#if defined (_AVC_ENCODE_VME_SUPPORTED) || defined (_AVC_ENCODE_VDENC_SUPPORTED)
+        if (info->Mode == CODECHAL_ENCODE_MODE_AVC)
+        {
+            if (CodecHalUsesVdencEngine(info->CodecFunction))
+            {
+            #ifdef _AVC_ENCODE_VDENC_SUPPORTED
+                encoder = MOS_New(Encode::AvcVdenc, hwInterface, debugInterface, info);
+            #endif
+            }
+            else
+            {
+            #ifdef _AVC_ENCODE_VME_SUPPORTED
+                encoder = MOS_New(Encode::AvcEnc, hwInterface, debugInterface, info);
+            #endif
+            }
+            if (encoder == nullptr)
+            {
+                CODECHAL_PUBLIC_ASSERTMESSAGE("Encode state creation failed!");
+                return MOS_STATUS_INVALID_PARAMETER;
+            }
+            else
+            {
+                m_codechalDevice = encoder;
+            }
+        }
+        else
+#endif
+#ifdef _VP8_ENCODE_SUPPORTED
+        if (info->Mode == CODECHAL_ENCODE_MODE_VP8)
+        {
+            // Setup encode interface functions
+            encoder = MOS_New(Encode::Vp8, hwInterface, debugInterface, info);
+            if (encoder == nullptr)
+            {
+                CODECHAL_PUBLIC_ASSERTMESSAGE("VP8 Encode allocation failed!");
+                return MOS_STATUS_INVALID_PARAMETER;
+            }
+            else
+            {
+                m_codechalDevice = encoder;
+            }
+        }
+        else
+#endif
+        {
+            CODECHAL_PUBLIC_ASSERTMESSAGE("Unsupported encode function requested.");
+            return MOS_STATUS_INVALID_PARAMETER;
+        }
+
+        if (info->Mode != CODECHAL_ENCODE_MODE_JPEG)
+        {
+            // Create CSC and Downscaling interface
+            if ((encoder->m_cscDsState = MOS_New(Encode::CscDs, encoder)) == nullptr)
+            {
+                return MOS_STATUS_INVALID_PARAMETER;
+            }
+        }
+    }
+    else
+    {
+        CODECHAL_PUBLIC_ASSERTMESSAGE("Unsupported codec function requested.");
+        return MOS_STATUS_INVALID_PARAMETER;
+    }
+
+    return MOS_STATUS_SUCCESS;
+}
 
 static bool cflRegisteredCMHal =
     MediaInterfacesFactory<CMHalDevice>::
