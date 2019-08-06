@@ -268,6 +268,7 @@ struct drm_i915_cmd_parser_append {
 #define DRM_I915_GEM_CONTEXT_GETPARAM    0x34
 #define DRM_I915_GEM_CONTEXT_SETPARAM    0x35
 #define DRM_I915_PERFMON        0x3e
+#define DRM_I915_GEM_BO_SWITCH		0x40
 
 #ifndef ANDROID
 #define DRM_I915_LOAD_BALANCING_HINT    0x3f
@@ -329,6 +330,7 @@ struct drm_i915_cmd_parser_append {
 #define DRM_IOCTL_I915_GEM_USERPTR            DRM_IOWR (DRM_COMMAND_BASE + DRM_I915_GEM_USERPTR, struct drm_i915_gem_userptr)
 #define DRM_IOCTL_I915_GEM_CONTEXT_GETPARAM    DRM_IOWR (DRM_COMMAND_BASE + DRM_I915_GEM_CONTEXT_GETPARAM, struct drm_i915_gem_context_param)
 #define DRM_IOCTL_I915_GEM_CONTEXT_SETPARAM    DRM_IOWR (DRM_COMMAND_BASE + DRM_I915_GEM_CONTEXT_SETPARAM, struct drm_i915_gem_context_param)
+#define DRM_IOCTL_I915_GEM_BO_SWITCH	       DRM_IOWR(DRM_COMMAND_BASE + DRM_I915_GEM_BO_SWITCH, struct drm_i915_bo_switch)
 
 #ifndef ANDROID
 #define DRM_IOCTL_I915_LOAD_BALANCING_HINT        DRM_IOWR(DRM_COMMAND_BASE + DRM_I915_LOAD_BALANCING_HINT, struct drm_i915_ring_load_query)
@@ -1374,5 +1376,13 @@ typedef struct drm_i915_ring_load_query
     int query_size;
     drm_i915_ring_load_info *load_info;
 } drm_i915_ring_load_query;
+
+struct drm_i915_bo_switch {
+	__u32 handle_tiled;
+	__u32 handle_linear;
+	__u32 flags;
+	__u32 height;
+	__u32 width;
+};
 
 #endif /* _I915_DRM_H_ */
