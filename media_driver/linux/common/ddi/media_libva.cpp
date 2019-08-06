@@ -5770,13 +5770,9 @@ VAStatus DdiMedia_ExportSurfaceHandle(
     DDI_CHK_NULL(mediaSurface->bo,               "nullptr mediaSurface->bo",               VA_STATUS_ERROR_INVALID_SURFACE);
     DDI_CHK_NULL(mediaSurface->pGmmResourceInfo, "nullptr mediaSurface->pGmmResourceInfo", VA_STATUS_ERROR_INVALID_SURFACE);
 
-    int32_t ret = mos_bo_gem_export_to_prime(mediaSurface->bo, (int32_t*)&mediaSurface->name);
-    if (ret)
-    {
-        //LOGE("Failed drm_intel_gem_export_to_prime operation!!!\n");
-        return VA_STATUS_ERROR_OPERATION_FAILED;
-    }
     uint32_t tiling, swizzle;
+    int32_t ret;
+
     if(mos_bo_get_tiling(mediaSurface->bo,&tiling, &swizzle))
     {
         tiling = I915_TILING_NONE;
@@ -5787,6 +5783,36 @@ VAStatus DdiMedia_ExportSurfaceHandle(
     {
         return VA_STATUS_ERROR_UNSUPPORTED_RT_FORMAT;
     }
+
+    if (mediaSurface->pBoShadow && (desc->fourcc == VA_FOURCC_NV12))
+    {
+        drm_intel_bo_switch(mediaSurface->bo, mediaSurface->pBoShadow,  mediaSurface->pGmmResourceInfo->GetBaseHeight() * 3 / 2, mediaSurface->pGmmResourceInfo->GetRenderPitch());
+        mos_bo_map(mediaSurface->pBoShadow, (MOS_LOCKFLAG_READONLY | MOS_LOCKFLAG_WRITEONLY));
+        mediaSurface->bBoShadowMapped = true;
+
+#if 0
+        FILE *fp = fopen("umd_dump_boshadow.yuv", "ab+");
+        fwrite(mediaSurface->pBoShadow->virt, mediaSurface->pGmmResourceInfo->GetBaseHeight() * mediaSurface->pGmmResourceInfo->GetRenderPitch() * 3 / 2, 1, fp);
+        fclose(fp);
+#endif
+        ret = mos_bo_gem_export_to_prime(mediaSurface->pBoShadow, (int32_t*)&mediaSurface->name);
+        if (ret)
+        {
+            DDI_ASSERTMESSAGE("Failed drm_intel_gem_export_to_prime bo shadow operation!!!");
+            return VA_STATUS_ERROR_OPERATION_FAILED;
+        }
+    }
+    else
+    {
+
+        ret = mos_bo_gem_export_to_prime(mediaSurface->bo, (int32_t*)&mediaSurface->name);
+        if (ret)
+        {
+            DDI_ASSERTMESSAGE("Failed drm_intel_gem_export_to_prime bo operation!!!")
+            return VA_STATUS_ERROR_OPERATION_FAILED;
+        }
+    }
+
     desc->width  = mediaSurface->iWidth;
     desc->height = mediaSurface->iHeight;
 

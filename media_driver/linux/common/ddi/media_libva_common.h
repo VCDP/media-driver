@@ -255,7 +255,9 @@ typedef struct _DDI_MEDIA_SURFACE
     uint32_t                isTiled;
     uint32_t                TileType;
     uint32_t                bMapped;
+    uint32_t                bBoShadowMapped;
     MOS_LINUX_BO           *bo;
+    MOS_LINUX_BO           *pBoShadow;
     uint32_t                name;
     uint32_t                surfaceUsageHint;
     PDDI_MEDIA_SURFACE_DESCRIPTOR pSurfDesc;          // nullptr means surface was allocated by media driver

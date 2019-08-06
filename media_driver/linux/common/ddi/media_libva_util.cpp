@@ -291,6 +291,7 @@ VAStatus DdiMediaUtil_AllocateSurface(
 {
     int32_t                     pitch = 0;
     MOS_LINUX_BO               *bo = nullptr;
+    MOS_LINUX_BO               *boShadow = nullptr;
     GMM_RESCREATE_PARAMS        gmmParams;
     GMM_RESOURCE_INFO          *gmmResourceInfo;
     bool                        grallocAllocation;
@@ -556,6 +557,8 @@ VAStatus DdiMediaUtil_AllocateSurface(
             {
                 bo = mos_bo_alloc_tiled(mediaDrvCtx->pDrmBufMgr, "MEDIA", gmmPitch, gmmSize/gmmPitch, 1, &tileformat, (unsigned long *)&ulPitch, 0);
                 pitch = (int32_t)ulPitch;
+
+                boShadow = mos_bo_alloc(mediaDrvCtx->pDrmBufMgr, "MEDIA", gmmSize, 4096);
             }
         }
     }
@@ -592,6 +595,8 @@ VAStatus DdiMediaUtil_AllocateSurface(
     }
 
     mediaSurface->bMapped = false;
+    mediaSurface->bBoShadowMapped = false;
+
     if (bo)
     {
         mediaSurface->format      = format;
@@ -601,6 +606,7 @@ VAStatus DdiMediaUtil_AllocateSurface(
         mediaSurface->iPitch      = pitch;
         mediaSurface->iRefCount   = 0;
         mediaSurface->bo          = bo;
+        mediaSurface->pBoShadow   = boShadow;
         mediaSurface->TileType    = tileformat;
         mediaSurface->isTiled     = (tileformat != I915_TILING_NONE) ? 1 : 0;
         mediaSurface->pData       = (uint8_t*) bo->virt;
@@ -1090,7 +1096,14 @@ void DdiMediaUtil_FreeSurface(DDI_MEDIA_SURFACE *surface)
             DdiMediaUtil_UnlockSurface(surface);
             DDI_VERBOSEMESSAGE("DDI: try to free a locked surface.");
         }
+        if (surface->bBoShadowMapped)
+        {
+            mos_bo_unmap(surface->pBoShadow);
+            surface->pBoShadow->virt = nullptr;
+        }
+        mos_bo_unreference(surface->pBoShadow);
         mos_bo_unreference(surface->bo);
+        surface->pBoShadow = nullptr;
         surface->bo = nullptr;
     }
 
