@@ -28,6 +28,7 @@
 #include "igvpkrn_g9.h"
 #include "vphal_render_vebox_g9_base.h"
 #include "vphal_render_composite_g9.h"
+#include "vphal_blitter_state_g9_base.h"
 
 extern const Kdll_RuleEntry         g_KdllRuleTable_g9[];
 
@@ -157,6 +158,21 @@ MOS_STATUS VphalRendererG9::AllocateRenderComponents(
     {
         eStatus = MOS_STATUS_NO_SPACE;
         VPHAL_RENDER_ASSERTMESSAGE("Allocate Composite Render Fail.");
+        return eStatus;
+    }
+
+    pRender[VPHAL_RENDER_ID_BLITTER] = MOS_New(
+        VPHAL_BLITTER_STATE_G9_BASE,
+        m_pOsInterface,
+        m_pRenderHal,
+        &PerfData,
+        CacheCntl.DnDi,
+        &eStatus);
+    if (!pRender[VPHAL_RENDER_ID_BLITTER] ||
+        (eStatus != MOS_STATUS_SUCCESS))
+    {
+        eStatus = MOS_STATUS_NO_SPACE;
+        VPHAL_RENDER_ASSERTMESSAGE("Allocate Blitter Render Fail.");
         return eStatus;
     }
 

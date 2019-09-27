@@ -3728,11 +3728,13 @@ MOS_STATUS VpHal_RndrRenderVebox(
     MOS_STATUS               eStatus;
     PMOS_INTERFACE           pOsInterface;
     RenderState              *pRenderState;
+    RenderState              *pRenderBlitterState;
     VphalFeatureReport*      pReport;
     PVPHAL_SURFACE           pOutSurface = nullptr;
     RECT                     rcTemp;
     PVPHAL_VEBOX_STATE       pVeboxState;
     PVPHAL_VEBOX_RENDER_DATA pRenderData;
+    VPHAL_RENDER_PARAMS      RenderParams = *pcRenderParams;
 
     //------------------------------------------------------
     VPHAL_RENDER_ASSERT(pRenderer);
@@ -3786,9 +3788,20 @@ MOS_STATUS VpHal_RndrRenderVebox(
             VPHAL_SET_SURF_MEMOBJCTL(pVeboxState->DnDiSurfMemObjCtl.CurrentOutputSurfMemObjCtl, MOS_MP_RESOURCE_USAGE_DEFAULT);
         }
 
-        VPHAL_RENDER_CHK_STATUS(pRenderState->Render(
+        if (pcRenderParams->IsBoSwitch == false )
+        {
+            VPHAL_RENDER_CHK_STATUS(pRenderState->Render(
                                                 pcRenderParams,
                                                 pRenderPassData))
+        }
+        else
+        {
+            pRenderBlitterState     = pRenderer->pRender[VPHAL_RENDER_ID_VEBOX + pRenderer->uiBlitterChannel];
+            pRenderer->pRender[VPHAL_RENDER_ID_VEBOX+pRenderer->uiBlitterChannel]->SetStatusReportParams(pRenderer, &RenderParams);
+            VPHAL_RENDER_CHK_STATUS(pRenderBlitterState->Render(
+                                                pcRenderParams,
+                                                pRenderPassData))
+        }
 
         pRenderState->CopyReporting(pReport);
 

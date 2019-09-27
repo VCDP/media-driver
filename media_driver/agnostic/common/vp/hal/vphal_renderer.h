@@ -101,9 +101,10 @@ enum VPHAL_RENDER_ID
     VPHAL_RENDER_ID_VEBOX = 0,
     VPHAL_RENDER_ID_VEBOX2,
     VPHAL_RENDER_ID_COMPOSITE,
+    VPHAL_RENDER_ID_BLITTER,
     VPHAL_RENDER_ID_COUNT                   //!< Keep this line at the end
 };
-C_ASSERT(VPHAL_RENDER_ID_COUNT == 3);      //!< When adding, update assert
+C_ASSERT(VPHAL_RENDER_ID_COUNT == 4);      //!< When adding, update assert
 
 //!
 //! \brief VPHAL renderer class
@@ -123,7 +124,7 @@ public:
 
     // Stereo state.
     uint32_t                    uiCurrentChannel;                               //!< 0=StereoLeft or nonStereo, 1=StereoRight. N/A in nonStereo
-
+    uint32_t                    uiBlitterChannel;
     // Compositing Kernel DLL/Search state
     const Kdll_RuleEntry        *pKernelDllRules;
     Kdll_State                  *pKernelDllState;

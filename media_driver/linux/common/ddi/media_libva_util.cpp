@@ -373,6 +373,8 @@ VAStatus DdiMediaUtil_AllocateSurface(
             goto finish;
     }
 
+    format = Media_Format_NV12;
+
     if( DdiMediaUtil_IsExternalSurface(mediaSurface) )
     { 
         // DRM buffer allocated by Application, No need to re-allocate new DRM buffer

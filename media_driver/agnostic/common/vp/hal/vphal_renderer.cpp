@@ -1049,6 +1049,9 @@ MOS_STATUS VphalRenderer::Render(
 
         // Update channel. 0 = mono or stereo left, 1 = stereo right
         uiCurrentChannel = uiCurrentRenderPass;
+        uiBlitterChannel = uiCurrentRenderPass;
+        if (RenderParams.IsBoSwitch == true )
+            uiBlitterChannel = 3;
 
         VPHAL_RENDER_CHK_STATUS(RenderPass(&RenderParams));
     }
@@ -1177,6 +1180,10 @@ MOS_STATUS VphalRenderer::Initialize(
 
     // Initialize Compositing renderer
     VPHAL_RENDER_CHK_STATUS(pRender[VPHAL_RENDER_ID_COMPOSITE]->Initialize(
+        pSettings,
+        pKernelDllState));
+
+    VPHAL_RENDER_CHK_STATUS(pRender[VPHAL_RENDER_ID_BLITTER]->Initialize(
         pSettings,
         pKernelDllState));
 
