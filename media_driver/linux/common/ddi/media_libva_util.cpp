@@ -304,76 +304,77 @@ VAStatus DdiMediaUtil_AllocateSurface(
     VAStatus hRes         = VA_STATUS_SUCCESS;
     int32_t alignedHeight = height;
 
-    switch (format)
+    if (mediaDrvCtx->IsBoSwitch == false)
     {
-        case Media_Format_X8R8G8B8:
-        case Media_Format_X8B8G8R8:
-        case Media_Format_A8B8G8R8:
-        case Media_Format_R8G8B8A8:
-        case Media_Format_R5G6B5:
-        case Media_Format_R8G8B8:
-        case Media_Format_R10G10B10A2:
-        case Media_Format_B10G10R10A2: 
-            if (VA_SURFACE_ATTRIB_USAGE_HINT_ENCODER != mediaSurface->surfaceUsageHint)
-            {
-                 tileformat = I915_TILING_NONE;
-                 break;
-            }
-        case Media_Format_NV21:
-        case Media_Format_YV12:
-        case Media_Format_I420:
-        case Media_Format_IYUV:
-            if (VA_SURFACE_ATTRIB_USAGE_HINT_ENCODER != mediaSurface->surfaceUsageHint)
-            {
-                 tileformat = I915_TILING_NONE;
-                 break;
-            }
-        case Media_Format_RGBP:
-        case Media_Format_UYVY:
-        case Media_Format_A8R8G8B8:
-            if (VA_SURFACE_ATTRIB_USAGE_HINT_ENCODER != mediaSurface->surfaceUsageHint &&
-                !(mediaSurface->surfaceUsageHint & VA_SURFACE_ATTRIB_USAGE_HINT_DECODER))
-            {
-                 tileformat = I915_TILING_NONE;
-                 break;
-            }
-        case Media_Format_NV12:
-        case Media_Format_444P:
-        case Media_Format_422H:
-        case Media_Format_411P:
-        case Media_Format_422V:
-        case Media_Format_IMC3:
-        case Media_Format_400P:
-        case Media_Format_P010:
-        case Media_Format_P016:
-        case Media_Format_YUY2:
-        case Media_Format_Y210:
-        case Media_Format_Y216:
-        case Media_Format_AYUV:
-        case Media_Format_Y410:
-        case Media_Format_Y416:     
-            if (VA_SURFACE_ATTRIB_USAGE_HINT_ENCODER != mediaSurface->surfaceUsageHint)
-            {
+        switch (format)
+        {
+            case Media_Format_X8R8G8B8:
+            case Media_Format_X8B8G8R8:
+            case Media_Format_A8B8G8R8:
+            case Media_Format_R8G8B8A8:
+            case Media_Format_R5G6B5:
+            case Media_Format_R8G8B8:
+            case Media_Format_R10G10B10A2:
+            case Media_Format_B10G10R10A2: 
+                if (VA_SURFACE_ATTRIB_USAGE_HINT_ENCODER != mediaSurface->surfaceUsageHint)
+                {
+                     tileformat = I915_TILING_NONE;
+                     break;
+                }
+            case Media_Format_NV21:
+            case Media_Format_YV12:
+            case Media_Format_I420:
+            case Media_Format_IYUV:
+                if (VA_SURFACE_ATTRIB_USAGE_HINT_ENCODER != mediaSurface->surfaceUsageHint)
+                {
+                     tileformat = I915_TILING_NONE;
+                     break;
+                }
+            case Media_Format_RGBP:
+            case Media_Format_UYVY:
+            case Media_Format_A8R8G8B8:
+                if (VA_SURFACE_ATTRIB_USAGE_HINT_ENCODER != mediaSurface->surfaceUsageHint &&
+                    !(mediaSurface->surfaceUsageHint & VA_SURFACE_ATTRIB_USAGE_HINT_DECODER))
+                {
+                     tileformat = I915_TILING_NONE;
+                     break;
+                }
+            case Media_Format_NV12:
+            case Media_Format_444P:
+            case Media_Format_422H:
+            case Media_Format_411P:
+            case Media_Format_422V:
+            case Media_Format_IMC3:
+            case Media_Format_400P:
+            case Media_Format_P010:
+            case Media_Format_P016:
+            case Media_Format_YUY2:
+            case Media_Format_Y210:
+            case Media_Format_Y216:
+            case Media_Format_AYUV:
+            case Media_Format_Y410:
+            case Media_Format_Y416:     
+                if (VA_SURFACE_ATTRIB_USAGE_HINT_ENCODER != mediaSurface->surfaceUsageHint)
+                {
 #if UFO_GRALLOC_NEW_FORMAT
-                 //Planar type surface align 64 to improve performance.
-                alignedHeight = MOS_ALIGN_CEIL(height, 64);
+                     //Planar type surface align 64 to improve performance.
+                    alignedHeight = MOS_ALIGN_CEIL(height, 64);
 #else
-                //Planar type surface align 32 to improve performance.
-                alignedHeight = MOS_ALIGN_CEIL(height, 32);
+                    //Planar type surface align 32 to improve performance.
+                    alignedHeight = MOS_ALIGN_CEIL(height, 32);
 #endif
-            }
-            tileformat  = I915_TILING_Y;
-            break;
-        case Media_Format_Buffer:
-            tileformat = I915_TILING_NONE;
-            break;
-        default:
-            DDI_ASSERTMESSAGE("Unsupported format");
-            hRes = VA_STATUS_ERROR_UNSUPPORTED_RT_FORMAT;
-            goto finish;
+                }
+                tileformat  = I915_TILING_Y;
+                break;
+            case Media_Format_Buffer:
+                tileformat = I915_TILING_NONE;
+                break;
+            default:
+                DDI_ASSERTMESSAGE("Unsupported format");
+                hRes = VA_STATUS_ERROR_UNSUPPORTED_RT_FORMAT;
+                goto finish;
+        }
     }
-
-    format = Media_Format_NV12;
 
     if( DdiMediaUtil_IsExternalSurface(mediaSurface) )
     { 

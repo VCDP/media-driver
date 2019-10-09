@@ -446,6 +446,8 @@ struct DDI_MEDIA_CONTEXT
 
     bool                m_useSwSwizzling;
 
+    bool                IsBoSwitch;
+
 #ifndef ANDROID
     // X11 Func table, for vpgPutSurface (Linux)
     PDDI_X11_FUNC_TABLE X11FuncTable;
