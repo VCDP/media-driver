@@ -5,8 +5,8 @@
 //! \details  Common interface and structure used in Blitter which are platform independent
 //!
 
-#ifndef __VPHAL_BLITTER_STATE_H__
-#define __VPHAL_BLITTER_STATE_H__
+#ifndef __VPHAL_RENDER_BLITTER_H__
+#define __VPHAL_RENDER_BLITTER_H__
 
 #include "vphal_render_renderstate.h"
 #include "vphal_common.h"
@@ -23,7 +23,6 @@ class VPHAL_BLITTER_STATE : public RenderState
 
 public:
 
-	VPHAL_DNDI_CACHE_CNTL           DnDiSurfMemObjCtl;
 	Kdll_State                      *m_pKernelDllState;                           //!< Kernel DLL state
     static int                      iframe;
 
@@ -31,7 +30,6 @@ public:
 		PMOS_INTERFACE                  pOsInterface,
 		PRENDERHAL_INTERFACE            pRenderHal,
 		PVPHAL_RNDR_PERF_DATA           pPerfData,
-		const VPHAL_DNDI_CACHE_CNTL     &dndiCacheCntl,
 		MOS_STATUS                      *peStatus
 	);
 
@@ -67,14 +65,14 @@ public:
         PCVPHAL_RENDER_PARAMS  pcRenderParams,
         RenderpassData         *pRenderPassData);
 
-
-
-
 };
 
+MOS_STATUS VpHal_RndrRenderBlitter(
+    VphalRenderer           *pRenderer,
+    PVPHAL_RENDER_PARAMS    pRenderParams,
+    RenderpassData          *pRenderPassData);
 
 
-
-#endif // __VPHAL_BLITTER_STATE_H__
+#endif // __VPHAL_RENDER_BLITTER_H__
 
 

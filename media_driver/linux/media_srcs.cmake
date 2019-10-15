@@ -56,7 +56,7 @@ if(${GEN10_CNL_Supported} STREQUAL "yes")
     media_include_subdirectory(gen10_cnl)
 endif()
 
-if(${GEN11_Supported} STREQUAL "no")
+if(${GEN11_Supported} STREQUAL "yes")
     media_include_subdirectory(gen11)
 endif()
 

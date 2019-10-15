@@ -446,7 +446,7 @@ struct DDI_MEDIA_CONTEXT
 
     bool                m_useSwSwizzling;
 
-    bool                IsBoSwitch;
+    bool                bBltMode;
 
 #ifndef ANDROID
     // X11 Func table, for vpgPutSurface (Linux)

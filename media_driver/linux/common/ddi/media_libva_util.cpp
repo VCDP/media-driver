@@ -304,7 +304,7 @@ VAStatus DdiMediaUtil_AllocateSurface(
     VAStatus hRes         = VA_STATUS_SUCCESS;
     int32_t alignedHeight = height;
 
-    if (mediaDrvCtx->IsBoSwitch == false)
+    if (mediaDrvCtx->bBltMode == false)
     {
         switch (format)
         {

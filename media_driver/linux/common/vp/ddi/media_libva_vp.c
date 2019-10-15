@@ -2839,7 +2839,7 @@ VAStatus DdiVp_EndPicture (
 
     if ((pVpCtx->pVpHalRenderParams->pSrc[0]->OsResource.TileType != MOS_TILE_LINEAR ) && (pVpCtx->pVpHalRenderParams->pTarget[0]->OsResource.TileType == MOS_TILE_LINEAR )&& (pVpCtx->pVpHalRenderParams->pSrc[0]->OsResource.iWidth == pVpCtx->pVpHalRenderParams->pTarget[0]->OsResource.iWidth) && (pVpCtx->pVpHalRenderParams->pSrc[0]->OsResource.iHeight == pVpCtx->pVpHalRenderParams->pTarget[0]->OsResource.iHeight))
     {
-        pVpCtx->pVpHalRenderParams->IsBoSwitch = true;
+        pVpCtx->pVpHalRenderParams->bBltMode = true;
     }
 
     pVpHal  = pVpCtx->pVpHal;

@@ -32,7 +32,7 @@
 #include "vphal_render_common.h"
 #include "vphal_render_renderstate.h"
 #include "vphal_render_vebox_base.h"
-
+#include "vphal_render_blitter.h"
 #include "vphal_debug.h"
 
 #define VPHAL_RNDR_TEMP_OUT_SURFS            2
@@ -124,7 +124,7 @@ public:
 
     // Stereo state.
     uint32_t                    uiCurrentChannel;                               //!< 0=StereoLeft or nonStereo, 1=StereoRight. N/A in nonStereo
-    uint32_t                    uiBlitterChannel;
+
     // Compositing Kernel DLL/Search state
     const Kdll_RuleEntry        *pKernelDllRules;
     Kdll_State                  *pKernelDllState;

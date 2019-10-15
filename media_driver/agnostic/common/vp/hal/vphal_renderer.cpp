@@ -23,7 +23,7 @@
 //! \file     vphal_renderer.cpp
 //! \brief    VPHAL top level rendering component and the entry to low level renderers
 //! \details  The top renderer is responsible for coordinating the sequence of calls to low level renderers, e.g. DNDI or Comp
-//!
+//i!
 #include "vphal_renderer.h"
 #include "vphal_debug.h"
 #include "vpkrnheader.h"
@@ -764,10 +764,21 @@ MOS_STATUS VphalRenderer::RenderSingleStream(
         VPHAL_RNDR_DUMP_SURF(
             this, pRenderPassData->uiSrcIndex, VPHAL_DBG_DUMP_TYPE_PRE_DNDI, pRenderPassData->pSrcSurface);
 
-        VPHAL_RENDER_CHK_STATUS(VpHal_RndrRenderVebox(
-            this,
-            pRenderParams,
-            pRenderPassData));
+        if (pRenderParams->bBltMode == false )
+		{
+
+            VPHAL_RENDER_CHK_STATUS(VpHal_RndrRenderVebox(
+                this,
+                pRenderParams,
+                pRenderPassData));
+        }
+        else
+        {
+            VPHAL_RENDER_CHK_STATUS(VpHal_RndrRenderBlitter(
+            	this,
+            	pRenderParams,
+            	pRenderPassData));
+        }
 
         if (pRenderPassData->bOutputGenerated)
         {
@@ -1049,10 +1060,11 @@ MOS_STATUS VphalRenderer::Render(
 
         // Update channel. 0 = mono or stereo left, 1 = stereo right
         uiCurrentChannel = uiCurrentRenderPass;
-        uiBlitterChannel = uiCurrentRenderPass;
-        if (RenderParams.IsBoSwitch == true )
-            uiBlitterChannel = 3;
 
+        if (RenderParams.bBltMode == true )
+		{
+			uiCurrentChannel = 3;
+		}
         VPHAL_RENDER_CHK_STATUS(RenderPass(&RenderParams));
     }
 
