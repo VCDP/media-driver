@@ -77,7 +77,7 @@ MOS_STATUS VPHAL_BLITTER_STATE::Render(
 		usleep(10000);   //sleep 10ms for the first frame
 		iframe++;
 	}
-    VpHal_RndrUpdateStatusTableAfterSubmit(pOsInterface, &m_StatusTableUpdateParams, MOS_GPU_CONTEXT_VEBOX, eStatus);
+    VpHal_RndrUpdateStatusTableAfterSubmit(pOsInterface, &m_StatusTableUpdateParams, MOS_GPU_CONTEXT_BLITTER, eStatus);
     return eStatus;
 }
 
