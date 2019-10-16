@@ -32,7 +32,7 @@
 #include "vphal_render_common.h"
 #include "vphal_render_renderstate.h"
 #include "vphal_render_vebox_base.h"
-
+#include "vphal_render_blitter.h"
 #include "vphal_debug.h"
 
 #define VPHAL_RNDR_TEMP_OUT_SURFS            2
@@ -101,9 +101,10 @@ enum VPHAL_RENDER_ID
     VPHAL_RENDER_ID_VEBOX = 0,
     VPHAL_RENDER_ID_VEBOX2,
     VPHAL_RENDER_ID_COMPOSITE,
+    VPHAL_RENDER_ID_BLITTER,
     VPHAL_RENDER_ID_COUNT                   //!< Keep this line at the end
 };
-C_ASSERT(VPHAL_RENDER_ID_COUNT == 3);      //!< When adding, update assert
+C_ASSERT(VPHAL_RENDER_ID_COUNT == 4);      //!< When adding, update assert
 
 //!
 //! \brief VPHAL renderer class

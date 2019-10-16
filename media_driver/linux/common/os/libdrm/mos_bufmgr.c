@@ -1,7 +1,7 @@
 /**************************************************************************
  *
- * Copyright © 2007 Red Hat Inc.
- * Copyright © 2007-2018 Intel Corporation
+ * Copyright ? 2007 Red Hat Inc.
+ * Copyright ? 2007-2018 Intel Corporation
  * Copyright 2006 Tungsten Graphics, Inc., Bismarck, ND., USA
  * All Rights Reserved.
  *
@@ -28,7 +28,7 @@
  *
  **************************************************************************/
 /*
- * Authors: Thomas Hellström <thomas-at-tungstengraphics-dot-com>
+ * Authors: Thomas Hellstr?m <thomas-at-tungstengraphics-dot-com>
  *          Keith Whitwell <keithw-at-tungstengraphics-dot-com>
  *        Eric Anholt <eric@anholt.net>
  *        Dave Airlie <airlied@linux.ie>
@@ -4109,6 +4109,26 @@ mos_bo_gem_export_to_prime(struct mos_linux_bo *bo, int *prime_fd)
     bo_gem->reusable = false;
 
     return 0;
+}
+
+int drm_intel_bo_switch(struct mos_linux_bo *bo_tiled, struct mos_linux_bo *bo_linear, uint32_t height, uint32_t width)
+{
+	struct mos_bufmgr_gem *bufmgr_gem_tiled = (struct mos_bufmgr_gem *) bo_tiled->bufmgr;
+	struct mos_bo_gem *bo_gem_tiled = (struct mos_bo_gem *) bo_tiled;
+	struct mos_bo_gem *bo_gem_linear = (struct mos_bo_gem *) bo_linear;
+	struct drm_i915_bo_switch args;
+	int ret;
+
+	args.handle_tiled = bo_gem_tiled->gem_handle;
+	args.handle_linear = bo_gem_linear->gem_handle;
+	args.flags = 0; //will use in later
+	args.height = height;
+	args.width = width;
+	ret = drmIoctl(bufmgr_gem_tiled->fd, DRM_IOCTL_I915_GEM_BO_SWITCH, &args);
+	if (ret)
+		return ret;
+
+	return 0;
 }
 
 static int

@@ -351,7 +351,7 @@ VAStatus DdiMediaUtil_AllocateSurface(
         case Media_Format_Y216:
         case Media_Format_AYUV:
         case Media_Format_Y410:
-        case Media_Format_Y416:     
+        case Media_Format_Y416:
             if (VA_SURFACE_ATTRIB_USAGE_HINT_ENCODER != mediaSurface->surfaceUsageHint)
             {
 #if UFO_GRALLOC_NEW_FORMAT
@@ -363,6 +363,10 @@ VAStatus DdiMediaUtil_AllocateSurface(
 #endif
             }
             tileformat  = I915_TILING_Y;
+            if (mediaSurface->surfaceUsageHint == 0x00000040)
+            {
+                tileformat = I915_TILING_NONE;
+            }
             break;
         case Media_Format_Buffer:
             tileformat = I915_TILING_NONE;
