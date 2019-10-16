@@ -2093,7 +2093,7 @@ DdiMedia_CreateSurfaces2(
                            surfIsUserPtr = (attrib_list[i].value.value.i == VA_SURFACE_ATTRIB_MEM_TYPE_USER_PTR);
                            surfIsUserPtr = false;
                       }
-                      else if (attrib_list[i].value.value.i == VA_SURFACE_ATTRIB_MEM_TYPE_LINEAR_BO)
+                      else if (attrib_list[i].value.value.i == VA_SURFACE_ATTRIB_MEM_TYPE_LINEAR)
                       {
                           mediaCtx->bBltMode = true;
                       }

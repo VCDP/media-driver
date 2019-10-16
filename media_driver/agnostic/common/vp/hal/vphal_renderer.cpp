@@ -1061,10 +1061,6 @@ MOS_STATUS VphalRenderer::Render(
         // Update channel. 0 = mono or stereo left, 1 = stereo right
         uiCurrentChannel = uiCurrentRenderPass;
 
-        if (RenderParams.bBltMode == true )
-		{
-			uiCurrentChannel = 3;
-		}
         VPHAL_RENDER_CHK_STATUS(RenderPass(&RenderParams));
     }
 

@@ -58,8 +58,6 @@ MOS_STATUS VPHAL_BLITTER_STATE::Render(
 
 	PVPHAL_SURFACE           pSrcSurface;
     PVPHAL_SURFACE           pOutputSurface;
-	//pSrcSurface     = pRenderPassData->pSrcSurface;
-    //pOutputSurface  = pRenderPassData->pOutSurface;
     pSrcSurface    = pcRenderParams->pSrc[0];
     pOutputSurface = pcRenderParams->pTarget[0];
     PMOS_INTERFACE           pOsInterface;
@@ -97,13 +95,11 @@ MOS_STATUS VpHal_RndrRenderBlitter(
     //------------------------------------------------------
     VPHAL_RENDER_ASSERT(pRenderer);
     VPHAL_RENDER_ASSERT(pRenderParams);
-    //VPHAL_RENDER_CHK_NULL(pRenderer->GetOsInterface());
     //------------------------------------------------------
 
     eStatus                 = MOS_STATUS_SUCCESS;
-    //pOsInterface            = pRenderer->GetOsInterface();
     pReport                 = pRenderer->GetReport();
-    pRenderState            = pRenderer->pRender[VPHAL_RENDER_ID_VEBOX + pRenderer->uiCurrentChannel];
+    pRenderState            = pRenderer->pRender[VPHAL_RENDER_ID_BLITTER];
 
 
 
