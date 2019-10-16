@@ -1941,13 +1941,14 @@ DdiMedia_CreateSurfaces2(
     DDI_CHK_LARGER(width,        0, "Invalid width",        VA_STATUS_ERROR_INVALID_PARAMETER);
     DDI_CHK_LARGER(height,       0, "Invalid height",       VA_STATUS_ERROR_INVALID_PARAMETER);
 
-    if(num_attribs > 0)
-    {
-        DDI_CHK_NULL(attrib_list, "nullptr attrib_list", VA_STATUS_ERROR_INVALID_PARAMETER);
-    }
-
     PDDI_MEDIA_CONTEXT mediaCtx    = DdiMedia_GetMediaContext(ctx);
     DDI_CHK_NULL(mediaCtx,       "nullptr mediaCtx",   VA_STATUS_ERROR_INVALID_CONTEXT);
+
+    mediaCtx->bBltMode = false;
+	if(num_attribs > 0)
+	{
+		DDI_CHK_NULL(attrib_list, "nullptr attrib_list", VA_STATUS_ERROR_INVALID_PARAMETER);
+	}
 
     int32_t expected_fourcc = VA_FOURCC_NV12;
     switch(format)
@@ -2091,6 +2092,10 @@ DdiMedia_CreateSurfaces2(
                            memTypeFlag = attrib_list[i].value.value.i;
                            surfIsUserPtr = (attrib_list[i].value.value.i == VA_SURFACE_ATTRIB_MEM_TYPE_USER_PTR);
                            surfIsUserPtr = false;
+                      }
+                      else if (attrib_list[i].value.value.i == VA_SURFACE_ATTRIB_MEM_TYPE_LINEAR)
+                      {
+                          mediaCtx->bBltMode = true;
                       }
                       else
                       {

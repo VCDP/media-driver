@@ -363,6 +363,10 @@ VAStatus DdiMediaUtil_AllocateSurface(
 #endif
             }
             tileformat  = I915_TILING_Y;
+            if (mediaDrvCtx->bBltMode == true)
+            {
+                tileformat = I915_TILING_NONE;
+            }
             break;
         case Media_Format_Buffer:
             tileformat = I915_TILING_NONE;
@@ -372,6 +376,7 @@ VAStatus DdiMediaUtil_AllocateSurface(
             hRes = VA_STATUS_ERROR_UNSUPPORTED_RT_FORMAT;
             goto finish;
     }
+
 
     if( DdiMediaUtil_IsExternalSurface(mediaSurface) )
     { 

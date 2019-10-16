@@ -28,6 +28,7 @@ set(TMP_SOURCES_
     ${CMAKE_CURRENT_LIST_DIR}/vphal_render_ief.cpp
     ${CMAKE_CURRENT_LIST_DIR}/vphal_render_renderstate.cpp
     ${CMAKE_CURRENT_LIST_DIR}/vphal_render_sfc_base.cpp
+	${CMAKE_CURRENT_LIST_DIR}/vphal_render_blitter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/vphal_render_vebox_base.cpp
     ${CMAKE_CURRENT_LIST_DIR}/vphal_render_vebox_iecp.cpp
     ${CMAKE_CURRENT_LIST_DIR}/vphal_render_vebox_procamp.cpp
@@ -49,6 +50,7 @@ set(TMP_HEADERS_
     ${CMAKE_CURRENT_LIST_DIR}/vphal_render_ief.h
     ${CMAKE_CURRENT_LIST_DIR}/vphal_render_renderstate.h
     ${CMAKE_CURRENT_LIST_DIR}/vphal_render_sfc_base.h
+	${CMAKE_CURRENT_LIST_DIR}/vphal_render_blitter.h
     ${CMAKE_CURRENT_LIST_DIR}/vphal_render_vebox_base.h
     ${CMAKE_CURRENT_LIST_DIR}/vphal_render_vebox_iecp.h
     ${CMAKE_CURRENT_LIST_DIR}/vphal_render_vebox_procamp.h
