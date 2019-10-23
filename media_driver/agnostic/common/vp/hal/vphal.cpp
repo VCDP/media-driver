@@ -126,6 +126,20 @@ MOS_STATUS VphalState::Allocate(
             MOS_GPU_CONTEXT_VEBOX));
     }
 
+    {
+        MOS_GPUCTX_CREATOPTIONS createOption1;
+        VPHAL_PUBLIC_CHK_STATUS(m_osInterface->pfnCreateGpuContext(
+            m_osInterface,
+            MOS_GPU_CONTEXT_BLITTER,
+            MOS_GPU_NODE_BLITTER,
+            &createOption1));
+	}
+
+    // Register BLITTER GPU context with the event
+    VPHAL_PUBLIC_CHK_STATUS(m_osInterface->pfnRegisterBBCompleteNotifyEvent(
+        m_osInterface,
+        MOS_GPU_CONTEXT_BLITTER));
+
     // Allocate and initialize HW states
     RenderHalSettings.iMediaStates  = pVpHalSettings->mediaStates;
     VPHAL_PUBLIC_CHK_STATUS(m_renderHal->pfnInitialize(m_renderHal, &RenderHalSettings));

@@ -311,6 +311,8 @@ int mos_bo_gem_export_to_prime(struct mos_linux_bo *bo, int *prime_fd);
 struct mos_linux_bo *mos_bo_gem_create_from_prime(struct mos_bufmgr *bufmgr,
                         int prime_fd, int size);
 
+int drm_intel_bo_switch(struct mos_linux_bo *bo_tiled, struct mos_linux_bo *bo_linear, uint32_t height, uint32_t width);
+
 /* drm_intel_bufmgr_fake.c */
 struct mos_bufmgr *mos_bufmgr_fake_init(int fd,
                          unsigned long low_offset,

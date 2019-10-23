@@ -2837,6 +2837,11 @@ VAStatus DdiVp_EndPicture (
     DDI_CHK_NULL(pVpCtx->pVpHalRenderParams, "Null pVpHalRenderParams.", VA_STATUS_ERROR_INVALID_PARAMETER);
     pVpCtx->pVpHalRenderParams->Component = COMPONENT_VPCommon;
 
+    if ((pVpCtx->pVpHalRenderParams->pSrc[0]->OsResource.TileType != MOS_TILE_LINEAR ) && (pVpCtx->pVpHalRenderParams->pTarget[0]->OsResource.TileType == MOS_TILE_LINEAR )&& (pVpCtx->pVpHalRenderParams->pSrc[0]->OsResource.iWidth == pVpCtx->pVpHalRenderParams->pTarget[0]->OsResource.iWidth) && (pVpCtx->pVpHalRenderParams->pSrc[0]->OsResource.iHeight == pVpCtx->pVpHalRenderParams->pTarget[0]->OsResource.iHeight))
+    {
+        pVpCtx->pVpHalRenderParams->bBltMode = true;
+    }
+
     pVpHal  = pVpCtx->pVpHal;
     DDI_CHK_NULL(pVpHal, "Null pVpHal.", VA_STATUS_ERROR_INVALID_PARAMETER);
     eStatus = pVpHal->Render(pVpCtx->pVpHalRenderParams);
