@@ -380,7 +380,7 @@ inline void FastMemCopy_SSE2_movntdq_movdqa(
     CM_ASSERT( IsAligned( dst, sizeof(DQWORD) ) );
     CM_ASSERT( IsAligned( src, sizeof(DQWORD) ) );
 
-    const size_t doubleQuadWordsPerPrefetch = sizeof(PREFETCH) / sizeof(DQWORD);
+    const size_t doubleQuadWordsPerPrefetch = sizeof(PREFETCH) / (sizeof(DQWORD));
 
     // Prefetch the src data
     Prefetch( (uint8_t*)src );
@@ -434,7 +434,7 @@ inline void FastMemCopy_SSE2_movdqu_movdqa(
 {
     CM_ASSERT( IsAligned( src, sizeof(DQWORD) ) );
 
-    const size_t doubleQuadWordsPerPrefetch = sizeof(PREFETCH) / sizeof(DQWORD);
+    const size_t doubleQuadWordsPerPrefetch = sizeof(PREFETCH) / (sizeof(DQWORD));
 
     // Prefetch the src data
     Prefetch( (uint8_t*)src );
@@ -488,7 +488,7 @@ inline void FastMemCopy_SSE2_movntdq_movdqu(
 {
     CM_ASSERT( IsAligned( dst, sizeof(DQWORD) ) );
 
-    const size_t doubleQuadWordsPerPrefetch = sizeof(PREFETCH) / sizeof(DQWORD);
+    const size_t doubleQuadWordsPerPrefetch = sizeof(PREFETCH) / (sizeof(DQWORD));
 
     // Prefetch the src data
     Prefetch( (uint8_t*)src );
@@ -540,7 +540,7 @@ inline void FastMemCopy_SSE2_movdqu_movdqu(
     const void* src,
     const size_t doubleQuadWords )
 {
-    const size_t doubleQuadWordsPerPrefetch = sizeof(PREFETCH) / sizeof(DQWORD);
+    const size_t doubleQuadWordsPerPrefetch = sizeof(PREFETCH) / (sizeof(DQWORD));
 
     // Prefetch the src data
     Prefetch( (uint8_t*)src );
